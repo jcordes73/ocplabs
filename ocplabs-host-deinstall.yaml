@@ -1,0 +1,42 @@
+- hosts: glusterfs
+  tasks:
+  - name: kill_containers | Kill remaining containers
+    shell: docker ps | awk '{print $1}' | tail -1 | xargs -I{} docker kill {}
+  - name: clean_device | Gather LVMS
+    debug: var=item
+    register: gluster_lv
+    with_dict: "{{ ansible_lvm.lvs }}"
+  - name: clean_device | Delete Logical Volumes used by Gluster (logical volumes)
+    lvol:
+      vg: "{{ item.item.value.vg }}"
+      lv: "{{ item.item.key }}"
+      state: absent
+      force: yes
+    when: item.item.key | match('tp_.*') or item.item.key | match('brick_.*')
+    with_items: "{{ gluster_lv.results }}"
+  - name: clean_device | Gather LVMS
+    debug: var=item
+    register: gluster_vg
+    with_dict: "{{ ansible_lvm.vgs }}"
+  - name: clean_device | Delete Volume Groups used by Gluster (volume groups)
+    lvg:
+      vg: "{{ item }}"
+      state: absent
+      force: yes
+    when: item.item.key | match('vg_.*')
+    with_items: "{{ gluster_vg.results }}"
+  - name: clean_device | Reset partition table
+    shell: dd if=/dev/zero of=/dev/sdb bs=512 count=1 conv=notrunc
+- hosts: masters:nodes
+  tasks:
+  - name: clean_device | Remove Docker volume group
+    lvg:
+      pvs: /dev/sda4
+      vg: docker-vg
+      state: absent
+      force: yes
+  - name: clean_device | Delete Docker partition
+    parted:
+      device: /dev/sda
+      number: 4
+      state: absent

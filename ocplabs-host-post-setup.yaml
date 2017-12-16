@@ -1,0 +1,65 @@
+- hosts: localhost 
+  vars:
+    users:
+      - name: admin
+        password: 'redhat2017!'
+      - name: developer
+        password: 'redhat2017!'      
+  tasks:
+  - name: create_htpasswd_users | Create Users via htpasswd
+    htpasswd:
+      path: "/etc/origin/openshift-passwd"
+      create: yes
+      name: "{{item.name}}"
+      password: "{{item.password}}"
+      owner: root
+      group: root
+      mode: 0640
+      state: present
+    with_items: "{{ users }}"
+- hosts: masters
+  tasks:
+  - name: setup_dnsmasq_apps | Setup dnsmasq for .apps.* domain
+    copy:
+      src: ocplabs-dnsmasq.conf
+      dest: /etc/dnsmasq.d/ocplabs.conf
+      owner: root
+      group: root
+      mode: 0640
+  - name: setup_dnsmasq_apps | Stop dnsmasq
+    systemd:
+      name: dnsmasq
+      state: stopped
+  - name: setup_dnsmasq_apps | Start dnsmasq
+    systemd:
+      name: dnsmasq
+      state: started
+  - name: setup_firewall_dnsmasq | Setup firewall for DNS-Masq (TCP)
+    iptables:
+      chain: INPUT
+      protocol: tcp
+      destination_port: 53
+      jump: ACCEPT
+  - name: setup_firewall_dnsmasq | Setup firewall for DNS-Masq (UDP)
+    iptables:
+      chain: INPUT
+      protocol: udp
+      destination_port: 53
+      jump: ACCEPT
+  - name: copy_htpasswd | Copy htpasswd
+    copy:
+      src: /etc/origin/openshift-passwd
+      dest: /etc/origin/openshift-passwd
+      owner: root
+      group: root
+      mode: 0640
+  - name: setup_ocp_admin_roles | Setup Admin roles for OCP (registry)
+    shell: oadm policy add-role-to-user system:registry admin
+  - name: setup_ocp_admin_roles | Setup Admin roles for OCP (admin for openshift namespace) 
+    shell: oadm policy add-role-to-user admin admin -n openshift
+  - name: setup_ocp_admin_roles | Setup Admin roles for OCP (image-builder)
+    shell: oadm policy add-role-to-user system:image-builder admin
+  - name: setup_ocp_admin_roles | Setup Admin roles for OCP (cluster-admin)
+    shell: oadm policy add-cluster-role-to-user cluster-admin admin
+  - name: setup_glusterfs_default_storageclass | Setup GlusterFS as default storage-class
+    shell: oc annotate storageclass glusterfs-storage storageclass.beta.kubernetes.io/is-default-class="true"

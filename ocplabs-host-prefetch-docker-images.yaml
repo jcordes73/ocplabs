@@ -1,0 +1,11 @@
+- hosts: localhost
+  gather_facts: true
+  tasks:
+  - name: pull_docker_images | Pull Docker Images
+    debug: msg="{{container_catalog}}}"
+  - name: pull_docker_images | Pull Docker Images
+    shell: |
+      docker pull {{container_catalog.container_base}}/{{item.image}}:{{item.tags[0]}}
+      docker tag {{container_catalog.container_base}}/{{item.image}}:{{item.tags[0]}} {{container_catalog.container_base}}/{{item.image}}:{{item.tags[1]}}
+      docker tag {{container_catalog.container_base}}/{{item.image}}:{{item.tags[0]}} {{container_catalog.container_base}}/{{item.image}}:latest
+    with_items: "{{container_catalog.containers}}"
