@@ -1,11 +1,26 @@
 - hosts: localhost
   gather_facts: true
   tasks:
-  - name: pull_docker_images | Pull Docker Images
-    debug: msg="{{container_catalog}}}"
+  - name: mount_ftp | Mount drive per SMB/CIFS
+    shell: |
+      fusermount -u /mnt/docker-images 
+      rm -rf /mnt/docker-images
+      mkdir /mnt/docker-images
+      mount -t cifs -o username=admin,password='redhat2017!' //192.168.0.100/ocplabs /mnt/docker-images
+  - name: check_ftp_images
+    stat:
+      path: /mnt/docker-images/{{item.image}}_{{item.tags[1]}}.tar
+    register: ftp_images_missing
+    with_items: "{{container_catalog.containers}}"
+    ignore_errors: yes
   - name: pull_docker_images | Pull Docker Images
     shell: |
-      docker pull {{container_catalog.container_base}}/{{item.image}}:{{item.tags[0]}}
-      docker tag {{container_catalog.container_base}}/{{item.image}}:{{item.tags[0]}} {{container_catalog.container_base}}/{{item.image}}:{{item.tags[1]}}
-      docker tag {{container_catalog.container_base}}/{{item.image}}:{{item.tags[0]}} {{container_catalog.container_base}}/{{item.image}}:latest
-    with_items: "{{container_catalog.containers}}"
+      docker pull {{container_catalog.container_base}}/{{item.item.image}}:{{item.item.tags[0]}}
+      docker tag {{container_catalog.container_base}}/{{item.item.image}}:{{item.item.tags[0]}} {{container_catalog.container_base}}/{{item.item.image}}:{{item.item.tags[1]}}
+      docker tag {{container_catalog.container_base}}/{{item.item.image}}:{{item.item.tags[0]}} {{container_catalog.container_base}}/{{item.item.image}}:latest
+      mkdir -p /mnt/docker-images/{{item.item.image.split('/')[0]}}
+      mkdir -p /tmp/docker-images/{{item.item.image.split('/')[0]}}
+      docker save {{container_catalog.container_base}}/{{item.item.image}} > /mnt/docker-images/{{item.item.image}}_{{item.item.tags[1]}}.tar
+      docker images | grep {{container_catalog.container_base}}/{{item.item.image}} | awk '{print $3}' | xargs -I{} docker rmi {} -f      
+    when: item.failed == false and item.stat.exists == false
+    with_items: "{{ftp_images_missing.results}}" 
