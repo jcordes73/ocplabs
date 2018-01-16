@@ -11,7 +11,7 @@ container_catalog:
         - v3.7
     - image: openshift3/node
       tags:
-        - v3.6.173.0.83-2
+        - v3.6.173.0.83-10
         - v3.6
     - image: openshift3/node
       tags:
@@ -19,7 +19,7 @@ container_catalog:
         - v3.7
     - image: openshift3/openvswitch
       tags:
-        - v3.6.173.0.83-4
+        - v3.6.173.0.83-11
         - v3.6
     - image: openshift3/openvswitch
       tags:
@@ -105,7 +105,7 @@ container_catalog:
       tags:
         - v3.6.173.0.83-4
         - v3.6
-     - image: openshift3/ose-egress-router
+    - image: openshift3/ose-egress-router
       tags:
         - v3.7.14-5
         - v3.7
@@ -184,6 +184,7 @@ container_catalog:
     - image: openshift3/logging-deployer
       tags:
         - v3.6.173.0.63-11
+        - v3.6
     - image: openshift3/ose-logging-deployer
       tags:
         - v3.6.173.0.63-11
@@ -222,7 +223,7 @@ container_catalog:
         - v3.7
     - image: openshift3/logging-kibana
       tags:
-        - v3.6.173.0.83-2 
+        - v3.6.173.0.83-9
         - v3.6
     - image: openshift3/logging-kibana
       tags:
@@ -230,7 +231,7 @@ container_catalog:
         - v3.7
     - image: openshift3/ose-logging-kibana
       tags:
-        - v3.6.173.0.83-2
+        - v3.6.173.0.83-9
         - v3.6
     - image: openshift3/ose-logging-kibana
       tags:
@@ -256,18 +257,10 @@ container_catalog:
       tags:
         - v3.6.173.0.83-2
         - v3.6
-    - image: openshift3/metrics-deployer
-      tags:
-        - v3.7.14-5
-        - v3.7
     - image: openshift3/ose-metrics-deployer
       tags:
         - v3.6.173.0.83-2
         - v3.6
-    - image: openshift3/ose-metrics-deployer
-      tags:
-        - v3.7.14-5
-        - v3.7
     - image: openshift3/metrics-hawkular-metrics
       tags:
         - v3.6.173.0.83-2
@@ -288,7 +281,7 @@ container_catalog:
       tags:
         - v3.6.173.0.83-2
         - v3.6
-     - image: openshift3/metrics-hawkular-openshift-agent
+    - image: openshift3/metrics-hawkular-openshift-agent
       tags:
         - v3.7.14-5
         - v3.7
@@ -296,7 +289,7 @@ container_catalog:
       tags:
         - v3.6.173.0.83-2
         - v3.6
-     - image: openshift3/ose-metrics-hawkular-openshift-agent
+    - image: openshift3/ose-metrics-hawkular-openshift-agent
       tags:
         - v3.7.14-5
         - v3.7
@@ -324,18 +317,34 @@ container_catalog:
       tags:
         - v3.6.173.0.83-2
         - v3.6
+    - image: openshift3/jenkins-2-rhel7
+      tags:
+        - v3.7.14-5
+        - v3.7
     - image: openshift3/jenkins-slave-base-rhel7
       tags:
         - v3.6.173.0.83-2
         - v3.6
+    - image: openshift3/jenkins-slave-base-rhel7
+      tags:
+        - v3.7.14-5
+        - v3.7
     - image: openshift3/jenkins-slave-maven-rhel7
       tags:
         - v3.6.173.0.49
         - v3.6
+    - image: openshift3/jenkins-slave-maven-rhel7
+      tags:
+        - v3.7.14-5
+        - v3.7
     - image: openshift3/jenkins-slave-nodejs-rhel7
       tags:
         - v3.6.173.0.83-2
         - v3.6
+    - image: openshift3/jenkins-slave-nodejs-rhel7
+      tags:
+        - v3.7.14-5
+        - v3.7
     - image: openshift3/ose-recycler
       tags:
         - v3.7.14-5
@@ -368,11 +377,7 @@ container_catalog:
       tags:
         - v3.7.14-5
         - v3.7
-    - image: openshift3/event-router
-      tags:
-        - v3.7.14-5
-        - v3.7
-    - image: openshift3/event-router
+    - image: openshift3/logging-eventrouter
       tags:
         - v3.7.14-5
         - v3.7
@@ -415,19 +420,19 @@ container_catalog:
     - image: rhgs3/rhgs-server-rhel7
       tags:
         - 3.3.0-362
-        - 3.3.0
+        - latest
     - image: rhgs3/rhgs-volmanager-rhel7
       tags:
         - 3.3.0-364
-        - 3.3.0
+        - latest
     - image: rhgs3/rhgs-gluster-block-prov-rhel7
       tags:
         - 3.3.0-362
-        - 3.3.0
+        - latest
     - image: rhgs3/rhgs-s3-server-rhel7
       tags:
         - 3.3.0-362
-        - 3.3.0
+        - latest
     - image: jboss-fuse-6/fis-java-openshift
       tags:
         - 2.0-13
@@ -602,7 +607,7 @@ container_catalog:
         - 4.1
     - image: rhscl/ror-42-rhel7
       tags:
-        - 4.2-3.21:w
+        - 4.2-3.21
         - 4.2
     - image: rhscl/ror-50-rhel7
       tags:
@@ -700,23 +705,15 @@ container_catalog:
       tags:
         - 1.1-17
         - 1.1
-    - image: dotnet/dotnetcore-20-rhel7
+    - image: dotnet/dotnet-20-rhel7
       tags:
         - 2.0-10
         - 2.0
-    - image: dotnet/dotnetcore-20-runtime-rhel7
+    - image: dotnet/dotnet-20-runtime-rhel7
       tags:
         - 2.0-10
         - 2.0
-    - image: dotnet/dotnetcore-20-jenkins-slave-rhel7
+    - image: dotnet/dotnet-20-jenkins-slave-rhel7
       tags:
         - 2.0-4
         - 2.0
-    - image: sonatype/nexus-repository-manager
-      tags:
-        - 3.6.0-01-rhel
-        - 3.6
-    - image: rocketchat/rocketchat
-      tags:
-        - 0.59.4
-        - 0.59

@@ -46,6 +46,8 @@
       protocol: udp
       destination_port: 53
       jump: ACCEPT
+  - name: setup_firewall_dnsmasq | Save firewall for DNS-Masq
+    shell: iptables-save > /etc/sysconfig/iptables
   - name: copy_htpasswd | Copy htpasswd
     copy:
       src: /etc/origin/openshift-passwd
@@ -61,5 +63,3 @@
     shell: oadm policy add-role-to-user system:image-builder admin
   - name: setup_ocp_admin_roles | Setup Admin roles for OCP (cluster-admin)
     shell: oadm policy add-cluster-role-to-user cluster-admin admin
-  - name: setup_glusterfs_default_storageclass | Setup GlusterFS as default storage-class
-    shell: oc annotate storageclass glusterfs-storage storageclass.beta.kubernetes.io/is-default-class="true"

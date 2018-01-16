@@ -1,0 +1,7 @@
+container_catalog:
+  container_base: registry.fedoraproject.org
+  containers:
+    - image: f27/cockpit
+      tags:
+        - latest
+        - latest

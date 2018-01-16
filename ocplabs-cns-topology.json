@@ -1,0 +1,56 @@
+{
+    "clusters": [
+        {
+            "nodes": [
+                {
+                    "node": {
+                        "hostnames": {
+                            "manage": [
+                                "node01.ocplabs.com"
+                            ],
+                            "storage": [
+                                "192.168.0.103"
+                            ]
+                        },
+                        "zone": 1
+                    },
+                    "devices": [
+                        "/dev/sdb"
+                    ]
+                },
+                {
+                    "node": {
+                        "hostnames": {
+                            "manage": [
+                                "node02.ocplabs.com"
+                            ],
+                            "storage": [
+                                "192.168.0.104"
+                            ]
+                        },
+                        "zone": 1
+                    },
+                    "devices": [
+                        "/dev/sdb"
+                    ]
+                },
+                {
+                    "node": {
+                        "hostnames": {
+                            "manage": [
+                                "node03.ocplabs.com"
+                            ],
+                            "storage": [
+                                "192.168.0.105"
+                            ]
+                        },
+                        "zone": 1
+                    },
+                    "devices": [
+                        "/dev/sdb"
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -49,88 +49,7 @@ function show_usage() {
   echo "    --proxy-user=<user>:<password>"
 }
 
-OPTS="$*"
-HOSTNAME="`hostname`"
-DOMAIN="`echo $HOSTNAME | cut -d'.' -f2-`"
-PROXY_HOST=""
-PROXY_PORT=""
-PROXY_USER=""
-PROXY_PASS=""
-OCP_ATOMIC_VERSION=latest
-OCP_DOCKER_REGISTRY=registry.access.redhat.com
-MODE=unknown
-OFFLINE=false
-OFFLINE_HOST=192.168.0.100
-OFFLINE_USER=admin
-OFFLINE_PASSWORD='redhat2017!'
-OFFLINE_REPO="http://${OFFLINE_HOST}/shares/U"
-
-for opt in $OPTS ; do
-  VALUE="`echo $opt | cut -d"=" -f2`"
-
-  case "$opt" in
-    install)
-      MODE=install
-    ;;
-    deinstall)
-      MODE=deinstall
-    ;;
-    offline-storage)
-      MODE=offline-storage
-    ;;
-    --root-password=*)
-      ROOT_PASSWORD=$VALUE
-    ;;
-    --rhn-user=*)
-      RHN_USER=$VALUE
-    ;;
-    --rhn-password=*)
-      RHN_PASSWORD=$VALUE
-    ;;
-    --rhn-pool-id=*)
-      RHN_POOL_ID=$VALUE
-    ;;
-    --ocp-dns=*)
-      OCP_DNS_1="`echo $VALUE | cut -d',' -f1`"
-      OCP_DNS_2="`echo $VALUE | cut -d',' -f2`"
-    ;;
-    --ocp-gateway=*)
-      OCP_GATEWAY=$VALUE
-    ;;
-    --offline)
-      OFFLINE=true
-    ;;
-    --proxy=*)
-      PROXY_HOST="`echo $VALUE | cut -d':' -f1`"
-      PROXY_PORT="`echo $VALUE | cut -d':' -f2`"
-    ;;
-    --proxy-user=*)
-      PROXY_USER="`echo $VALUE | cut -d':' -f1`"
-      PROXY_PASS="`echo $VALUE | cut -d':' -f2`"
-  esac
-done
-
-if [ ! -f "ocplabs-inventory.cfg" ] ; then
-  log error "Mandatory configuration-file ocplabs-inventory.cfg missing."
-  exit
-fi
-
-case "$MODE" in
-  offline-storage)
-  cat > ocplabs-ansible-variables.json <<EOF
-{
-  "offline_host": "${OFFLINE_HOST}",
-  "offline_user": "${OFFLINE_USER}",
-  "offline_password": "${OFFLINE_PASSWORD}",
-  "offline_repo": "${OFFLINE_REPO}"
-}
-EOF
-
-  ansible-playbook -vv -i ocplabs-inventory.cfg ocplabs-host-prefetch-docker-images.yaml -e "@ocplabs-ansible-variables.json" -e "@ocplabs-container-catalog.yaml">> ocplabs.log 2>&1
- 
-  ;;
-  install)
-
+function check_variables() {
   if [ "x$ROOT_PASSWORD" = "x" ] ; then
     show_input_info "Root password"
     read -s ROOT_PASSWORD
@@ -182,11 +101,11 @@ EOF
   if [ ! "${ATOMIC_VERSION}" = "latest" ] ; then
     ATOMIC_VERSION="v${ATOMIC_VERSION}"
   fi
+}
 
-  log info "Starting OpenShift Container Platform v3.6 installation."
-
-  # Prepare hosts
-  log info "Hosts preparation started."
+function bastion_host_preparation() {
+   # Prepare hosts
+  log info "Bastion Host preparation started."
 
   cat > ocplabs-ansible-variables.json <<EOF
 {
@@ -196,31 +115,152 @@ EOF
   "rhn_user": "${RHN_USERNAME}",
   "rhn_password": "${RHN_PASSWORD}",
   "rhn_pool_id": "${RHN_POOL_ID}",
-  "ocp_docker_registry": "${OCP_DOCKER_REGISTRY}",
+  "ocp_docker_registry_host": "${OCP_DOCKER_REGISTRY_HOST}",
+  "ocp_docker_registry_port": "${OCP_DOCKER_REGISTRY_PORT}",
   "ocp_dns_1": "${OCP_DNS_1}",
   "ocp_dns_2": "${OCP_DNS_2}",
-  "ocp_gateway": "${OCP_GATEWAY}",
-  "offline": "${OFFLINE}",
-  "offline_repo": "${OFFLINE_REPO}"
+  "ocp_gateway": "${OCP_GATEWAY}"
 }
 EOF
 
-  ansible-playbook -vv -i ocplabs-inventory.cfg ocplabs-host-setup.yaml -e "@ocplabs-ansible-variables.json" >> ocplabs.log 2>&1 
+  yum install -y ansible >> ocplabs.log 2>&1
+  cp .ansible.cfg /etc/ansible/ansible.cfg
+  ansible-playbook -vv -i ocplabs-ocp-inventory.cfg ocplabs-bastion-host-setup.yaml -e "@ocplabs-ansible-variables.json" >> ocplabs.log 2>&1
 
   ERROR_CODE=$?
 
   if [ $ERROR_CODE -ne 0 ]; then
-    log error "Host preparation failed. Aborting."
+    log error "Bastion Host preparation failed. Aborting."
     exit
   fi
 
   rm ocplabs-ansible-variables.json
 
-  log info "Hosts preparation finished."
+  log info "Bastion Host preparation finished."
+}
 
-  log info "Deployment started."
+function ocp_nodes_preparation() {
+  log info "OCP Nodes preparation started."
 
-  ansible-playbook -v -i ocplabs-inventory.cfg /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml >> ocplabs.log 2>&1
+  cat > ocplabs-ansible-variables.json <<EOF
+{
+  "ansible_connection": "ssh",
+  "ansible_ssh_user": "root",
+  "ansible_ssh_pass": "${ROOT_PASSWORD}",
+  "rhn_user": "${RHN_USERNAME}",
+  "rhn_password": "${RHN_PASSWORD}",
+  "rhn_pool_id": "${RHN_POOL_ID}",
+  "ocp_docker_registry_host": "${OCP_DOCKER_REGISTRY_HOST}",
+  "ocp_docker_registry_port": "${OCP_DOCKER_REGISTRY_PORT}",
+  "ocp_dns_1": "${OCP_DNS_1}",
+  "ocp_dns_2": "${OCP_DNS_2}",
+  "ocp_gateway": "${OCP_GATEWAY}"
+}
+EOF
+ 
+  ansible-playbook -vv -i ocplabs-ocp-inventory.cfg ocplabs-ocp-nodes-setup.yaml -e "@ocplabs-ansible-variables.json" >> ocplabs.log 2>&1
+
+  ERROR_CODE=$?
+
+  if [ $ERROR_CODE -ne 0 ]; then
+    log error "OCP Nodes preparation failed. Aborting."
+    exit
+  fi
+
+  rm ocplabs-ansible-variables.json
+
+  log info "OCP Nodes preparation finished."
+}
+
+
+OPTS="$*"
+HOSTNAME="`hostname`"
+DOMAIN="`echo $HOSTNAME | cut -d'.' -f2-`"
+PROXY_HOST=""
+PROXY_PORT=""
+PROXY_USER=""
+PROXY_PASS=""
+OCP_DOCKER_REGISTRY_HOST=192.168.0.106
+OCP_DOCKER_REGISTRY_PORT=5000
+MODE=unknown
+OFFLINE=false
+
+for opt in $OPTS ; do
+  VALUE="`echo $opt | cut -d"=" -f2`"
+
+  case "$opt" in
+    install)
+      MODE=install
+    ;;
+    cns-install)
+      MODE=cns-install
+    ;;
+    deinstall)
+      MODE=deinstall
+    ;;
+    cns-deinstall)
+      MODE=cns-deinstall
+    ;;
+    offline-storage)
+      MODE=offline-storage
+    ;;
+    --root-password=*)
+      ROOT_PASSWORD=$VALUE
+    ;;
+    --rhn-user=*)
+      RHN_USER=$VALUE
+    ;;
+    --rhn-password=*)
+      RHN_PASSWORD=$VALUE
+    ;;
+    --rhn-pool-id=*)
+      RHN_POOL_ID=$VALUE
+    ;;
+    --ocp-dns=*)
+      OCP_DNS_1="`echo $VALUE | cut -d',' -f1`"
+      OCP_DNS_2="`echo $VALUE | cut -d',' -f2`"
+    ;;
+    --ocp-gateway=*)
+      OCP_GATEWAY=$VALUE
+    ;;
+    --proxy=*)
+      PROXY_HOST="`echo $VALUE | cut -d':' -f1`"
+      PROXY_PORT="`echo $VALUE | cut -d':' -f2`"
+    ;;
+    --proxy-user=*)
+      PROXY_USER="`echo $VALUE | cut -d':' -f1`"
+      PROXY_PASS="`echo $VALUE | cut -d':' -f2`"
+  esac
+done
+
+if [ ! -f "ocplabs-ocp-inventory.cfg" ] ; then
+  log error "Mandatory configuration-file ocplabs-ocp-inventory.cfg missing."
+  exit
+fi
+
+case "$MODE" in
+  offline-storage)
+  check_variables
+  bastion_host_preparation
+  cat > ocplabs-ansible-variables.json <<EOF
+{
+  "ocp_docker_registry_host": "${OCP_DOCKER_REGISTRY_HOST}",
+  "ocp_docker_registry_port": "${OCP_DOCKER_REGISTRY_PORT}"
+}
+EOF
+
+  ansible-playbook -vv -i ocplabs-ocp-inventory.cfg ocplabs-bastion-host-prefetch-docker-images.yaml -e "@ocplabs-ansible-variables.json" -e "@ocplabs-container-catalog-redhat-access.yaml">> ocplabs.log 2>&1
+ 
+  ;;
+  install)
+
+  check_variables
+  bastion_host_preparation
+  ocp_nodes_preparation
+
+  log info "Starting OpenShift Container Platform v3.6 installation."
+
+  ansible-playbook -v -i ocplabs-ocp-inventory.cfg /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml >> ocplabs.log 2>&1
 
   ERROR_CODE=$?
 
@@ -231,10 +271,8 @@ EOF
 
   #oc adm policy add-role-to-user view system:serviceaccount:openshift-infra:hawkular -n openshift-infra >> ocplabs.log 2>&1
 
-  log info "Deployment finished."
-
   log info "Post Installation started."
-  ansible-playbook -vv -i ocplabs-inventory.cfg ocplabs-host-post-setup.yaml >> ocplabs.log 2>&1
+  ansible-playbook -vv -i ocplabs-ocp-inventory.cfg ocplabs-ocp-nodes-post-setup.yaml >> ocplabs.log 2>&1
  
   ERROR_CODE=$?
 
@@ -247,11 +285,35 @@ EOF
   
   log info "Finished OpenShift Container Platform 3.6 installation."
 ;;
+cns-install)
+
+  check_variables
+
+  log info "Starting OpenShift Container Platform v3.6 CNS installation."
+
+  log info "Deployment started."
+
+  ansible-playbook -v -i ocplabs-cns-inventory.cfg ocplabs-cns-nodes-setup.yaml >> ocplabs.log 2>&1
+
+  ERROR_CODE=$?
+
+  if [ $ERROR_CODE -ne 0 ]; then
+    log error "CNS Installation failed. Aborting."
+    exit
+  fi
+
+  log info "Finished OpenShift Container Platform 3.6 CNS installation."
+;;
 deinstall)
   log info "Starting OpenShift Container Platform v3.6 deinstallation."  
-  ansible-playbook -vv -i ocplabs-inventory.cfg /usr/share/ansible/openshift-ansible/playbooks/adhoc/uninstall.yml >> ocplabs.log 2>&1
-  ansible-playbook -vv -i ocplabs-inventory.cfg ocplabs-host-deinstall.yaml >> ocplabs.log 2>&1 
+  ansible-playbook -vv -i ocplabs-ocp-inventory.cfg /usr/share/ansible/openshift-ansible/playbooks/adhoc/uninstall.yml >> ocplabs.log 2>&1
+  ansible-playbook -vv -i ocplabs-ocp-inventory.cfg ocplabs-ocp-nodes-deinstall.yaml >> ocplabs.log 2>&1 
   log info "Finished OpenShift Container Platform v3.6 deinstallation."
+;;
+cns-deinstall)
+  log info "Starting OpenShift Container Platform v3.6 CNS deinstallation."
+  ansible-playbook -vv -i ocplabs-cns-inventory.cfg ocplabs-cns-nodes-deinstall.yaml >> ocplabs.log 2>&1
+  log info "Finished OpenShift Container Platform v3.6 CNS deinstallation."
 ;;
 *)
   show_usage

@@ -1,0 +1,151 @@
+- hosts: glusterfs
+  tasks:
+  - name: start_lvm_socket | Start LVM Socket
+    systemd:
+      name: lvm2-lvmetad.socket
+      enabled: yes
+      daemon_reload: yes
+      state: started
+  - name: start_lvm_service | Start LVM Service
+    systemd:
+      name: lvm2-lvmetad.service
+      enabled: yes
+      daemon_reload: yes
+      state: started
+  - name: check_ostree | Check if system is Atomic Host
+    stat: path=/etc/ostree
+    register: check_ostree
+  - name: docker_check_node_images | Check Docker Images for Gluster
+    shell: docker images 'rhgs3/{{item}}' | grep -e '.*/rhgs3/{{item.split(":")[0]}}.*{{item.split(":")[1]}}.*' | awk '{}END{ if (!NR) print "{{item}}"}'
+    register: docker_images_missing
+    with_items:
+    - rhgs-server-rhel7:latest
+    - rhgs-volmanager-rhel7:latest
+  - name: docker_pull_nodes | Pull Docker Images for Gluster
+    shell: docker pull rhgs3/{{item}}
+    with_items: "{{ docker_images_missing.results|map(attribute='stdout_lines')|list }}"
+    when: "check_ostree.stat.exists and docker_images_missing.results is defined"
+  - name: kernel_modules | Ensure that kernel modules are installed (https://access.redhat.com/documentation/en-us/red_hat_gluster_storage/3.3/html-single/container-native_storage_for_openshift_container_platform/#idm139750772891936)
+    shell: modprobe {{item}}
+    with_items:
+    - dm_snapshot
+    - dm_mirror
+    - dm_thin_pool
+    - dm_multipath
+    - target_core_user
+  - name: kernel_modules | Create conf files for modules
+    file:
+      path: /etc/modules-load.d/{{ item }}.conf
+      state: touch
+      mode: "u=rw,g=r,o=r"
+    with_items:
+    - dm_snapshot
+    - dm_mirror
+    - dm_thin_pool
+    - dm_multipath
+    - target_core_user
+  - name: kernel_modules | Add modules to conf file
+    lineinfile: dest=/etc/modules-load.d/{{ item }}.conf line="{{ item }}"
+    with_items:
+    - dm_snapshot
+    - dm_mirror
+    - dm_thin_pool
+    - dm_multipath
+    - target_core_user
+  - name: raw_device | Remove partition table
+    shell: dd if=/dev/zero of=/dev/sdb bs=512 count=1 conv=notrunc
+  - name: setup_firewall_glusterfs | Setup firewall for GlusterFS (port 24007)
+    iptables:
+      chain: OS_FIREWALL_ALLOW
+      protocol: tcp
+      destination_port: 24007
+      jump: ACCEPT
+  - name: setup_firewall_glusterfs | Setup firewall for GlusterFS (port 24008)
+    iptables:
+      chain: OS_FIREWALL_ALLOW
+      protocol: tcp
+      destination_port: 24008
+      jump: ACCEPT
+  - name: setup_firewall_glusterfs | Setup firewall for GlusterFS (port 2222)
+    iptables:
+      chain: OS_FIREWALL_ALLOW
+      protocol: tcp
+      destination_port: 2222
+      jump: ACCEPT
+  - name: setup_firewall_glusterfs | Setup firewall for GlusterFS (port 49152:49664)
+    iptables:
+      chain: OS_FIREWALL_ALLOW
+      protocol: tcp
+      destination_port: 49152:49664
+      jump: ACCEPT
+  - name: setup_firewall_glusterfs | Setup firewall for GlusterFS (port 24010)
+    iptables:
+      chain: OS_FIREWALL_ALLOW
+      protocol: tcp
+      destination_port: 24010
+      jump: ACCEPT
+  - name: setup_firewall_glusterfs | Setup firewall for GlusterFS (port 3260)
+    iptables:
+      chain: OS_FIREWALL_ALLOW
+      protocol: tcp
+      destination_port: 3260
+      jump: ACCEPT
+  - name: setup_firewall_glusterfs | Setup firewall for GlusterFS (port 111)
+    iptables:
+      chain: OS_FIREWALL_ALLOW
+      protocol: tcp
+      destination_port: 111
+      jump: ACCEPT
+  - name: setup_firewall_glusterfs | Save firewall settings for GlusterFS
+    shell: iptables-save > /etc/sysconfig/iptables
+  - name: setup_rpcbind | Setup RPC-Bind
+    shell: systemctl add-wants multi-user rpcbind.service
+  - name: setup_rpcbind | Enable RPC-Bind service
+    systemd:
+      name: rpcbind.service
+      enabled: yes
+      daemon_reload: yes
+      state: started
+- hosts: masters:nodes
+  tasks:
+  - name: setup_selinux | Set SELinux policy for GlusterFS
+    shell: setsebool -P virt_sandbox_use_fusefs 1
+- hosts: localhost
+  tasks:
+  - name: install_dnsmasq | Install DNSMasq
+    yum:
+      name: dnsmasq
+      state: present
+  - name: install_dnsmasq | Configure DNSMasq
+    lineinfile: dest=/etc/dnsmasq.conf line="address=/.apps.ocplabs.com/192.168.0.102"
+  - name: install_dnsmasq | Configure DNSMasq
+    lineinfile: dest=/etc/dnsmasq.conf line="server=/.svc.cluster.local/192.168.0.102#8053"
+  - name: install_dnsmasq | Install DNSMasq-Service
+    systemd:
+      name: dnsmasq
+      enabled: yes
+      state: started
+  - name: install_dnsmasq | Add localhost as nameserver
+    lineinfile: dest=/etc/resolv.conf line="nameserver 127.0.0.1"
+  - name: setup_gluster_containers | Login
+    shell: oc login -u admin -p 'redhat2017!' https://master.ocplabs.com:8443 --insecure-skip-tls-verify=true
+  - name: setup_gluster_containers | Create glusterfs projects
+    shell: oc new-project glusterfs
+    ignore_errors: yes
+  - name: setup_gluster_containers | Create SCC 
+    shell: oadm policy add-scc-to-user privileged -z glusterfs
+  - name: setup_gluster_container | CNS deploy
+    shell: cns-deploy -n glusterfs -g ocplabs-cns-topology.json -y --verbose
+  - name: setup_gluster_container | Get Cluster-ID
+    shell: |
+      export HEKETI_CLI_SERVER=http://heketi-glusterfs.apps.ocplabs.com
+      heketi-cli topology info | grep Cluster | awk -F': ' '{print $2}' | sort -u
+    register: heketi_clusterid
+  - name: setup_gluster_default_storageclass | Create GlusterFS storage-class Kubernetes object
+    template: owner=root group=root mode=644 
+              src=ocplabs-cns-storageclass-template.yaml
+              dest=/tmp/ocplabs-cns-storageclass.yaml
+  - name: setup_gluster_default_storageclass | Create GlusterFS storage-class
+    shell: oc create -f /tmp/ocplabs-cns-storageclass.yaml
+  - name: setup_gluster_default_storageclass | Setup GlusterFS as default storage-class
+    shell: oc annotate storageclass glusterfs-storage storageclass.beta.kubernetes.io/is-default-class="true"

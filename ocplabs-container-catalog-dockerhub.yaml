@@ -1,0 +1,7 @@
+container_catalog:
+  container_base: hub.docker.com
+  containers:
+    - image: library/wordpress
+      tags:
+        - latest
+        - latest

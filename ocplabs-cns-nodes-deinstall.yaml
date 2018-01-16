@@ -1,0 +1,41 @@
+- hosts: localhost
+  tasks:
+  - name: remove_gluster_containers | Login
+    shell: oc login -u admin -p 'redhat2017!' https://master.ocplabs.com:8443 --insecure-skip-tls-verify=true
+  - name: remove_gluster_containers | Delete glusterfs projects
+    shell: oc delete project glusterfs
+    ignore_errors: yes
+  - name: remove_gluster_default_storageclass | Delete GlusterFS storage-class
+    shell: oc delete storageclass glusterfs-storage
+    ignore_errors: yes
+  - name: remove_gluster_containers | Remove node labels
+    shell: oc label node {{ hostvars[item]['inventory_hostname'] }} storagenode-
+    with_items: "{{groups.glusterfs}}"
+- hosts: glusterfs
+  tasks:
+  - name:  remove_gluster | Delete pre-existing GlusterFS config
+    file:
+      path: /var/lib/glusterd
+      state: absent
+  - name: remove_gluster | Get GlusterFS storage devices state
+    command: "pvdisplay -C --noheadings -o pv_name,vg_name {% for device in glusterfs_devices %}{{ device }} {% endfor %}"
+    register: devices_info
+    failed_when: False
+  - name: remove_gluster | Show devices
+    debug: msg={{devices_info}} 
+  - name: remove_gluster | Clear GlusterFS storage device contents
+    shell: "{% set fields = item.split() %}{% if fields | count > 1 %}lvremove -ff {{ fields[1] }}; vgremove -fy {{ fields[1] }}; {% endif %}pvremove -fy {{ fields[0] }};"
+    with_items: "{{ devices_info.stdout_lines }}"
+    register: clear_devices
+    until:
+    - "'contains a filesystem in use' not in clear_devices.stderr"
+    delay: 1
+    retries: 30
+    when:
+    - devices_info.stdout_lines | count > 0
+  - name: clean_device | Wipe FS completely
+    shell: wipefs -a -f {{item}}
+    with_items: "{{glusterfs_devices}}"
+  - name: clean_device | Reset partition table
+    shell: dd if=/dev/zero of={{item}} bs=512 count=1 conv=notrunc
+    with_items: "{{glusterfs_devices}}"

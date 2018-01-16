@@ -1,0 +1,17 @@
+- hosts: masters:nodes
+  tasks:
+  - name: kill_containers | Kill remaining containers
+    shell: docker ps -q | awk '{print $1}' | xargs -I{} docker kill {}
+  - name: clean_registry | Remove Docker images from registry
+    shell: docker images -q | awk '{print $1}' | sort -u | xargs -I{} docker rmi {} -f
+  - name: clean_device | Remove Docker volume group
+    lvg:
+      pvs: /dev/sda4
+      vg: docker-vg
+      state: absent
+      force: yes
+  - name: clean_device | Delete Docker partition
+    parted:
+      device: /dev/sda
+      number: 4
+      state: absent

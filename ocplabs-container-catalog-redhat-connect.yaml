@@ -1,0 +1,19 @@
+container_catalog:
+  container_base: registry.connect.redhat.com
+  containers:
+    - image: sonatype/nexus-repository-manager
+      tags:
+        - 3.6.0-01-rhel
+        - 3.6
+    - image: rocketchat/rocketchat
+      tags:
+        - 0.59.4
+        - 0.59
+    - image: entando/entando-431
+      tags:
+        - 4.3.1
+        - latest
+    - image: tremolosecurity/unison-10
+      tags:
+        - 1.0.12-2017102501
+        - latest
