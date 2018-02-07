@@ -63,3 +63,5 @@
     shell: oadm policy add-role-to-user system:image-builder admin
   - name: setup_ocp_admin_roles | Setup Admin roles for OCP (cluster-admin)
     shell: oadm policy add-cluster-role-to-user cluster-admin admin
+  - name: update_image_streams | Update Image Streams
+    shell: oc get is -n openshift --no-headers=true | awk '{print $1}' | xargs -I{} oc import-image {} -n openshift --all --insecure=true

@@ -7,6 +7,4 @@ parameters:
   resturl: "http://heketi-glusterfs.apps.ocplabs.com"
   restuser: "admin"
   volumetype: "replicate:3"
-  clusterid: "{{heketi_clusterid.stdout_lines}}"
-  secretNamespace: "default"
-  secretName: "heketi-secret"
+  clusterid: "{{heketi_clusterid.stdout_lines[0]}}"
