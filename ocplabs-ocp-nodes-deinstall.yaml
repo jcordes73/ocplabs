@@ -1,7 +1,23 @@
+- hosts: etcd
+  tasks:
+  - name: stop_etcd | Stop etcd Service
+    systemd:
+      name: etcd_container.service
+      enabled: false
+      daemon_reload: yes
+      state: stopped
 - hosts: masters:nodes
   tasks:
+  - name: stop_cockpit | Stop Cockpit Service
+    systemd:
+      name: cockpitws.service
+      enabled: false
+      daemon_reload: yes
+      state: stopped
   - name: kill_containers | Kill remaining containers
-    shell: docker ps -q | awk '{print $1}' | xargs -I{} docker kill {}
+    shell: docker ps -q | awk '{print $1}' | xargs -I{} docker kill  {}
+  - name: remove_containers | Remove remaining containers
+    shell: docker ps -q -a | awk '{print $1}' | xargs -I{} docker rm -f -v {}
   - name: clean_registry | Remove Docker images from registry
     shell: docker images -q | awk '{print $1}' | sort -u | xargs -I{} docker rmi {} -f
   - name: clean_device | Remove Docker volume group
@@ -14,4 +30,8 @@
     parted:
       device: /dev/sda
       number: 4
+      state: absent
+  - name: clean_etc_origin | Remove /etc/origin
+    file:
+      path: /etc/origin
       state: absent

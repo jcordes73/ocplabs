@@ -4,7 +4,7 @@ trap interrupt 1 2 3 6 9 15
 
 function interrupt()
 {
-  log error "OpenShift Enterprise v3.6 installation aborted"
+  log error "OpenShift Enterprise v3.7 installation aborted"
   exit
 }
 
@@ -258,7 +258,7 @@ EOF
   bastion_host_preparation
   ocp_nodes_preparation
 
-  log info "Starting OpenShift Container Platform v3.6 installation."
+  log info "Starting OpenShift Container Platform v3.7 installation."
 
   ansible-playbook -v -i ocplabs-ocp-inventory.cfg /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml >> ocplabs.log 2>&1
 
@@ -283,13 +283,13 @@ EOF
 
   log info "Post Installation finished."
   
-  log info "Finished OpenShift Container Platform 3.6 installation."
+  log info "Finished OpenShift Container Platform 3.7 installation."
 ;;
 cns-install)
 
   check_variables
 
-  log info "Starting OpenShift Container Platform v3.6 CNS installation."
+  log info "Starting OpenShift Container Platform v3.7 CNS installation."
 
   log info "Deployment started."
 
@@ -302,18 +302,18 @@ cns-install)
     exit
   fi
 
-  log info "Finished OpenShift Container Platform 3.6 CNS installation."
+  log info "Finished OpenShift Container Platform 3.7 CNS installation."
 ;;
 deinstall)
-  log info "Starting OpenShift Container Platform v3.6 deinstallation."  
+  log info "Starting OpenShift Container Platform v3.7 deinstallation."  
   ansible-playbook -vv -i ocplabs-ocp-inventory.cfg /usr/share/ansible/openshift-ansible/playbooks/adhoc/uninstall.yml >> ocplabs.log 2>&1
   ansible-playbook -vv -i ocplabs-ocp-inventory.cfg ocplabs-ocp-nodes-deinstall.yaml >> ocplabs.log 2>&1 
-  log info "Finished OpenShift Container Platform v3.6 deinstallation."
+  log info "Finished OpenShift Container Platform v3.7 deinstallation."
 ;;
 cns-deinstall)
-  log info "Starting OpenShift Container Platform v3.6 CNS deinstallation."
+  log info "Starting OpenShift Container Platform v3.7 CNS deinstallation."
   ansible-playbook -vv -i ocplabs-cns-inventory.cfg ocplabs-cns-nodes-deinstall.yaml >> ocplabs.log 2>&1
-  log info "Finished OpenShift Container Platform v3.6 CNS deinstallation."
+  log info "Finished OpenShift Container Platform v3.7 CNS deinstallation."
 ;;
 *)
   show_usage

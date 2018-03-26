@@ -65,3 +65,9 @@
     shell: oadm policy add-cluster-role-to-user cluster-admin admin
   - name: update_image_streams | Update Image Streams
     shell: oc get is -n openshift --no-headers=true | awk '{print $1}' | xargs -I{} oc import-image {} -n openshift --all --insecure=true
+  - name: metrics_viewer | Create service account
+    shell: oc create sa metrics-deployer -n openshift-infra
+  - name: metrics_viewer | Add edit role
+    shell: oc adm policy add-role-to-user edit system:serviceaccount:openshift-infra:metrics-deployer
+  - name: metrics_viewer | Add cluster role
+    shell: oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:openshift-infra:heapster
