@@ -3,420 +3,204 @@ container_catalog:
   containers:
     - image: openshift3/ose
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/ose
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-8
+        - v3.9
     - image: openshift3/node
       tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/node
-      tags:
-        - v3.7.23-21
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/openvswitch
       tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/openvswitch
-      tags:
-        - v3.7.23-10
-        - v3.7
-    - image: openshift3/ose-deployer
-      tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/ose-deployer
-      tags:
-        - v3.7.23-10
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-docker-registry
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/ose-docker-registry
-      tags:
-        - v3.7.23-10
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-haproxy-router
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/ose-haproxy-router
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-pod
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/ose-pod
-      tags:
-        - v3.7.23-5
-        - v3.7
-    - image: openshift3/registry-console
-      tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/registry-console
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-ansible
       tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/ose-ansible
-      tags:
-        - v3.7.23-10
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-ansible-service-broker
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-template-service-broker
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-cluster-capacity
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/ose-cluster-capacity
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-docker-builder
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/ose-docker-builder
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-egress-http-proxy
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/ose-egress-http-proxy
-      tags:
-        - v3.7.23-3
-        - v3.7
-    - image: openshift3/ose-egress-router
-      tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/ose-egress-router
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-f5-router
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/ose-f5-router
-      tags:
-        - v3.7.23-3
-        - v3.7
-    - image: openshift3/ose-keepalived-ipfailover
-      tags:
-        - v3.6.173.0.96-2 
-        - v3.6
-    - image: openshift3/ose-keepalived-ipfailover
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-sti-builder
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/ose-sti-builder
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/container-engine
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/container-engine
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/efs-provisioner
       tags:
         - v0.0.1
         - v3.6
     - image: openshift3/logging-auth-proxy
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/logging-auth-proxy
-      tags:
-        - v3.7.23-3
-        - v3.7
-    - image: openshift3/ose-logging-auth-proxy
-      tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/ose-logging-auth-proxy
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-3
+        - v3.9
     - image: openshift3/logging-curator
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/logging-curator
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-logging-curator
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/ose-logging-curator
-      tags:
-        - v3.7.23-3
-        - v3.7
-    - image: openshift3/logging-deployer
-      tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/ose-logging-deployer
-      tags:
-        - v3.6.173.0.96-10
-        - v3.6
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/logging-elasticsearch
       tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/logging-elasticsearch
-      tags:
-        - v3.7.23-10
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-logging-elasticsearch
       tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/ose-logging-elasticsearch
-      tags:
-        - v3.7.23-10
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/logging-fluentd
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/logging-fluentd
-      tags:
-        - v3.7.23-3
-        - v3.7
-    - image: openshift3/ose-logging-fluentd
-      tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/ose-logging-fluentd
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/logging-kibana
       tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/logging-kibana
-      tags:
-        - v3.7.23-10
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-logging-kibana
       tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/ose-logging-kibana
-      tags:
-        - v3.7.23-10
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/metrics-cassandra
       tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/metrics-cassandra
-      tags:
-        - v3.7.23-10
-        - v3.7
-    - image: openshift3/ose-metrics-cassandra
-      tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/ose-metrics-cassandra
-      tags:
-        - v3.7.23-10
-        - v3.7
-    - image: openshift3/metrics-deployer
-      tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/ose-metrics-deployer
-      tags:
-        - v3.6.173.0.96-10
-        - v3.6
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/metrics-hawkular-metrics
       tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/metrics-hawkular-metrics
-      tags:
-        - v3.7.23-10
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-metrics-hawkular-metrics
       tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/ose-metrics-hawkular-metrics
-      tags:
-        - v3.7.23-10
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/metrics-hawkular-openshift-agent
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/metrics-hawkular-openshift-agent
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-metrics-hawkular-openshift-agent
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/ose-metrics-hawkular-openshift-agent
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/metrics-heapster
       tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/metrics-heapster
-      tags:
-        - v3.7.23-3
-        - v3.7
-    - image: openshift3/ose-metrics-heapster
-      tags:
-        - v3.6.173.0.96-2
-        - v3.6
-    - image: openshift3/ose-metrics-heapster
-      tags:
-        - v3.7.23-3
-        - v3.7
-    - image: openshift3/jenkins-1-rhel7
-      tags:
-        - v3.6.173.0.96-10
-        - v3.6
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/jenkins-2-rhel7
       tags:
-        - v3.6.173.0.96-11
-        - v3.6
-    - image: openshift3/jenkins-2-rhel7
-      tags:
-        - v3.7.23-10
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/jenkins-slave-base-rhel7
       tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/jenkins-slave-base-rhel7
-      tags:
-        - v3.7.23-10
-        - v3.7
-    - image: openshift3/jenkins-slave-maven-rhel7
-      tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/jenkins-slave-maven-rhel7
-      tags:
-        - v3.7.23-10
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/jenkins-slave-nodejs-rhel7
       tags:
-        - v3.6.173.0.96-10
-        - v3.6
-    - image: openshift3/jenkins-slave-nodejs-rhel7
-      tags:
-        - v3.7.23-10
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-recycler
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/apb-base
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/mediawiki-apb
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/mediawiki-123
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/mariadb-apb
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/mysql-apb
       tags:
-        - v3.7.23-3
-        - v3.7
-    - image: openshift3/postgresql-apb
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/oauth-proxy
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/logging-eventrouter
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/prometheus
       tags:
-        - v3.7.23-3
-        - v3.7
-    - image: openshift3/prometheus-alertmanager
-      tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/prometheus-alert-buffer
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/image-inspector
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/ose-service-catalog
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/local-storage-provisioner
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/snapshot-controller
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/snapshot-provisioner
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
     - image: openshift3/cri-o
       tags:
-        - v3.7.23-3
-        - v3.7
+        - v3.9.14-2
+        - v3.9
+    - image: openshift3/ose-web-console
+      tags:
+        - v3.9.14-2
+        - v3.9
     - image: rhgs3/rhgs-server-rhel7
       tags:
         - 3.3.1-3

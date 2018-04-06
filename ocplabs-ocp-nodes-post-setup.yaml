@@ -55,19 +55,26 @@
       owner: root
       group: root
       mode: 0640
+  - name: setup_ocp_admin_roles | Login as system:admin
+    shell: oc login -u system:admin -n default --config=/etc/origin/master/admin.kubeconfig
   - name: setup_ocp_admin_roles | Setup Admin roles for OCP (registry)
-    shell: oadm policy add-role-to-user system:registry admin
+    shell: oc adm policy add-role-to-user system:registry admin --config=/etc/origin/master/admin.kubeconfig
   - name: setup_ocp_admin_roles | Setup Admin roles for OCP (admin for openshift namespace) 
-    shell: oadm policy add-role-to-user admin admin -n openshift
+    shell: oc adm policy add-role-to-user admin admin -n openshift --config=/etc/origin/master/admin.kubeconfig
   - name: setup_ocp_admin_roles | Setup Admin roles for OCP (image-builder)
-    shell: oadm policy add-role-to-user system:image-builder admin
+    shell: oc adm policy add-role-to-user system:image-builder admin --config=/etc/origin/master/admin.kubeconfig
   - name: setup_ocp_admin_roles | Setup Admin roles for OCP (cluster-admin)
-    shell: oadm policy add-cluster-role-to-user cluster-admin admin
+    shell: oc adm policy add-cluster-role-to-user cluster-admin admin --config=/etc/origin/master/admin.kubeconfig
   - name: update_image_streams | Update Image Streams
     shell: oc get is -n openshift --no-headers=true | awk '{print $1}' | xargs -I{} oc import-image {} -n openshift --all --insecure=true
+    register: import_image_result
+    until: import_image_result.rc == 0
+    retries: 10
+    delay: 1
+    ignore_errors: yes
   - name: metrics_viewer | Create service account
-    shell: oc create sa metrics-deployer -n openshift-infra
+    shell: oc create sa metrics-deployer -n openshift-infra --insecure-skip-tls-verify=true --config=/etc/origin/master/admin.kubeconfig
   - name: metrics_viewer | Add edit role
-    shell: oc adm policy add-role-to-user edit system:serviceaccount:openshift-infra:metrics-deployer
+    shell: oc adm policy add-role-to-user edit system:serviceaccount:openshift-infra:metrics-deployer --insecure-skip-tls-verify=true --config=/etc/origin/master/admin.kubeconfig
   - name: metrics_viewer | Add cluster role
-    shell: oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:openshift-infra:heapster
+    shell: oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:openshift-infra:heapster --insecure-skip-tls-verify=true --config=/etc/origin/master/admin.kubeconfig

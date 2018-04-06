@@ -6,6 +6,11 @@
       enabled: false
       daemon_reload: yes
       state: stopped
+    ignore_errors: yes
+  - name: clean_etcd | Remove /var/lib/etcd
+    file:
+      path: /var/lib/etcd
+      state: absent
 - hosts: masters:nodes
   tasks:
   - name: stop_cockpit | Stop Cockpit Service

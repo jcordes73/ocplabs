@@ -19,9 +19,10 @@
     shell: docker images 'rhgs3/{{item}}' | grep -e '.*/rhgs3/{{item.split(":")[0]}}.*{{item.split(":")[1]}}.*' | awk '{}END{ if (!NR) print "{{item}}"}'
     register: docker_images_missing
     with_items:
-    - rhgs-server-rhel7:3.3.0-362
-    - rhgs-volmanager-rhel7:3.3.0-364
-    - rhgs-gluster-block-prov-rhel7:3.3.0-362
+    - rhgs-server-rhel7:v3.9.0
+    - rhgs-volmanager-rhel7:v3.9.0
+    - rhgs-gluster-block-prov-rhel7:v3.9.0
+    - rhgs-s3-server-rhel7:v3.9.0
   - name: docker_pull_nodes | Pull Docker Images for Gluster
     shell: docker pull rhgs3/{{item}}
     with_items: "{{ docker_images_missing.results|map(attribute='stdout_lines')|list }}"
@@ -113,21 +114,6 @@
     shell: setsebool -P virt_sandbox_use_fusefs 1
 - hosts: localhost
   tasks:
-  - name: install_dnsmasq | Install DNSMasq
-    yum:
-      name: dnsmasq
-      state: present
-  - name: install_dnsmasq | Configure DNSMasq
-    lineinfile: dest=/etc/dnsmasq.conf line="address=/.apps.ocplabs.com/192.168.0.102"
-  - name: install_dnsmasq | Configure DNSMasq
-    lineinfile: dest=/etc/dnsmasq.conf line="server=/.svc.cluster.local/192.168.0.102#8053"
-  - name: install_dnsmasq | Install DNSMasq-Service
-    systemd:
-      name: dnsmasq
-      enabled: yes
-      state: started
-  - name: install_dnsmasq | Add localhost as nameserver
-    lineinfile: dest=/etc/resolv.conf line="nameserver 127.0.0.1"
   - name: setup_gluster_containers | Login
     shell: oc login -u admin -p 'redhat2017!' https://master.ocplabs.com:8443 --insecure-skip-tls-verify=true
   - name: setup_gluster_containers | Create glusterfs projects
