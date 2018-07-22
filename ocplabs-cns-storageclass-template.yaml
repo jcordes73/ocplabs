@@ -8,3 +8,4 @@ parameters:
   restuser: "admin"
   volumetype: "replicate:3"
   clusterid: "{{heketi_clusterid.stdout_lines[0]}}"
+  volumeoptions: "client.ssl off, server.ssl off, features.cache-invalidation on, performance.nl-cache on"

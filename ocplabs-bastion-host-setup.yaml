@@ -11,6 +11,8 @@
       password: "{{rhn_password}}"
       pool: "{{rhn_pool_id}}"
     when: check_ocp_playbooks.stat.exists == false
+  - name: setup_bastion_host | Clean yum
+    shell: yum clean all
   - name: setup_bastion_host | Disable all repos
     shell: subscription-manager repos --disable="*"
     when: check_ocp_playbooks.stat.exists == false
@@ -45,12 +47,16 @@
     - gcc
     - atomic-openshift-utils
     - atomic-openshift-excluder
-    - atomic-openshift-clients
     - atomic-openshift
     - rh-python35
     - cns-deploy
     - heketi-client
     when: check_ocp_playbooks.stat.exists == false
+  - name: setup_bastion_host | Install OpenShift Client
+    shell: |
+      atomic-openshift-excluder unexclude
+      yum install atomic-openshift-clients
+      atomic-openshift-excluder exclude
   - name: setup_bastion_host | Disable GlusterFS repo
     shell: subscription-manager repos --disable="rh-gluster-3-for-rhel-7-server-rpms"
     when: check_ocp_playbooks.stat.exists == false
@@ -65,3 +71,37 @@
     systemd:
       name: docker
       state: started
+  - name: setup_dnsmasq_apps | Setup dnsmasq for .apps.* domain
+    copy:
+      src: ocplabs-dnsmasq.conf
+      dest: /etc/dnsmasq.d/ocplabs.conf
+      owner: root
+      group: root
+      mode: 0640
+  - name: setup_dnsmasq_apps | Stop dnsmasq
+    systemd:
+      name: dnsmasq
+      state: stopped
+  - name: setup_dnsmasq_apps | Start dnsmasq
+    systemd:
+      name: dnsmasq
+      state: started
+  - name: setup_firewall_dnsmasq | Setup firewall for DNS-Masq (TCP)
+    iptables:
+      chain: IN_public_allow
+      protocol: tcp
+      destination_port: 53
+      jump: ACCEPT
+  - name: setup_firewall_dnsmasq | Setup firewall for DNS-Masq (UDP)
+    iptables:
+      chain: IN_public_allow
+      protocol: udp
+      destination_port: 53
+      jump: ACCEPT
+  - name: setup_firewall_dnsmasq | Save firewall for DNS-Masq
+    shell: iptables-save > /etc/sysconfig/iptables
+  - name: Change etcd image name
+    lineinfile:
+      path: /usr/share/ansible/openshift-ansible/roles/etcd/defaults/main.yaml
+      regexp: '^osm_etcd_image:'
+      state: absent

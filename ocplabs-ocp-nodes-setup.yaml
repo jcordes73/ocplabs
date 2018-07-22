@@ -170,8 +170,13 @@
       group: root
       mode: 0640
     when: check_ostree.stat.exists == true
+  - name: setup_cockpit | Pull Cockpit Container
+    #shell: docker pull cockpit/ws
+    shell: docker pull rhel7/cockpit-ws
+    when: check_ostree.stat.exists == true
   - name: setup_cockpit | Setup Cockpit Container
-    shell: atomic install cockpit/ws
+    #shell: atomic install cockpit/ws
+    shell: atomic install rhel7/cockpit-ws
     when: check_ostree.stat.exists == true
   - name: setup_cockpit | Start Cockpit Service
     systemd:
@@ -201,7 +206,7 @@
     - openshift3/ose:v3.9
     - openshift3/node:v3.9
     - openshift3/openvswitch:v3.9
-    - rhel7/etcd:3.2.15
+    - rhel7/etcd:latest
     when: check_ostree.stat.exists == true
   - name: docker_pull_master | Pull Docker Images for Masters
     shell: docker pull {{item}}
