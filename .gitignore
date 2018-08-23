@@ -1,2 +1,3 @@
 ocplabs.log
 *.retry
+ocplabs-ansible-variables.json
