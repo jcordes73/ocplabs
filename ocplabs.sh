@@ -4,7 +4,7 @@ trap interrupt 1 2 3 6 9 15
 
 function interrupt()
 {
-  log error "OpenShift Enterprise v3.9 installation aborted"
+  log error "OpenShift Enterprise v3.10 installation aborted"
   exit
 }
 
@@ -91,6 +91,21 @@ function ocp_nodes_preparation() {
   log info "OCP Nodes preparation finished."
 }
 
+function ocp_nodes_prerequisites_check() {
+  log info "OCP Installation Prerequisites check started."
+
+  ansible-playbook -vvv -i ocplabs-ocp-inventory.cfg /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml >> ocplabs.log 2>&1
+
+  ERROR_CODE=$?
+
+  if [ $ERROR_CODE -ne 0 ]; then
+    log error "OCP Installation Prerequisites check failed. Aborting."
+    exit
+  fi
+
+  log info "OCP Installation Prerequisites check finished."
+}
+
 
 OPTS="$*"
 HOSTNAME="`hostname`"
@@ -149,8 +164,9 @@ case "$MODE" in
   check_variables
   bastion_host_preparation
   ocp_nodes_preparation
+  ocp_nodes_prerequisites_check
 
-  log info "Starting OpenShift Container Platform v3.9 installation."
+  log info "Starting OpenShift Container Platform v3.10 installation."
 
   ansible-playbook -vvv -i ocplabs-ocp-inventory.cfg /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml >> ocplabs.log 2>&1
 
@@ -182,13 +198,13 @@ case "$MODE" in
 
   log info "Post Installation finished."
   
-  log info "Finished OpenShift Container Platform v3.9 installation."
+  log info "Finished OpenShift Container Platform v3.10 installation."
 ;;
 cns-install)
 
   check_variables
 
-  log info "Starting OpenShift Container Platform v3.9 CNS installation."
+  log info "Starting OpenShift Container Platform v3.10 CNS installation."
 
   log info "Deployment started."
 
@@ -201,18 +217,18 @@ cns-install)
     exit
   fi
 
-  log info "Finished OpenShift Container Platform v3.9 CNS installation."
+  log info "Finished OpenShift Container Platform v3.10 CNS installation."
 ;;
 deinstall)
-  log info "Starting OpenShift Container Platform v3.9 deinstallation."  
+  log info "Starting OpenShift Container Platform v3.10 deinstallation."  
   ansible-playbook -vvv -i ocplabs-ocp-inventory.cfg /usr/share/ansible/openshift-ansible/playbooks/adhoc/uninstall.yml >> ocplabs.log 2>&1
   ansible-playbook -vvv -i ocplabs-ocp-inventory.cfg ocplabs-ocp-nodes-deinstall.yaml >> ocplabs.log 2>&1 
-  log info "Finished OpenShift Container Platform v3.9 deinstallation."
+  log info "Finished OpenShift Container Platform v3.10 deinstallation."
 ;;
 cns-deinstall)
-  log info "Starting OpenShift Container Platform v3.9 CNS deinstallation."
+  log info "Starting OpenShift Container Platform v3.10 CNS deinstallation."
   ansible-playbook -vvv -i ocplabs-cns-inventory.cfg ocplabs-cns-nodes-deinstall.yaml >> ocplabs.log 2>&1
-  log info "Finished OpenShift Container Platform v3.9 CNS deinstallation."
+  log info "Finished OpenShift Container Platform v3.10 CNS deinstallation."
 ;;
 *)
   show_usage

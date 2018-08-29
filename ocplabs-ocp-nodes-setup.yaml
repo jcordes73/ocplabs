@@ -187,7 +187,7 @@
     when: check_ostree.stat.exists == true
   - name: setup_cockpit | Setup firewall for Cockpit
     iptables:
-      chain: OS_FIREWALL_ALLOW 
+      chain: INPUT
       protocol: tcp
       destination_port: 9090
       jump: ACCEPT
@@ -203,9 +203,9 @@
     shell: docker images '{{item}}' | grep -e '.*{{item.split(":")[0]}}.*{{item.split(":")[1]}}.*' | awk '{}END{ if (!NR) print "{{item}}"}'
     register: docker_images_missing
     with_items:
-    - openshift3/ose:v3.9
-    - openshift3/node:v3.9
-    - openshift3/openvswitch:v3.9
+    - openshift3/ose:v3.10
+    - openshift3/node:v3.10
+    - openshift3/openvswitch:latest
     - rhel7/etcd:latest
     when: check_ostree.stat.exists == true
   - name: docker_pull_master | Pull Docker Images for Masters
@@ -221,9 +221,9 @@
     shell: docker images '{{item}}' | grep -e '.*{{item.split(":")[0]}}.*{{item.split(":")[1]}}.*' | awk '{}END{ if (!NR) print "{{item}}"}'
     register: docker_images_missing
     with_items:
-    - openshift3/ose:v3.9
-    - openshift3/node:v3.9
-    - openshift3/openvswitch:v3.9
+    - openshift3/ose:v3.10
+    - openshift3/node:v3.10
+    - openshift3/openvswitch:latest
     when: check_ostree.stat.exists == true
   - name: docker_pull_nodes | Pull Docker Images for Nodes
     shell: docker pull {{item}}
