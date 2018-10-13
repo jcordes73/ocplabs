@@ -78,3 +78,9 @@
     shell: oc adm policy add-role-to-user edit system:serviceaccount:openshift-infra:metrics-deployer --insecure-skip-tls-verify=true --config=/etc/origin/master/admin.kubeconfig
   - name: metrics_viewer | Add cluster role
     shell: oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:openshift-infra:heapster --insecure-skip-tls-verify=true --config=/etc/origin/master/admin.kubeconfig
+- hosts: masters:nodes
+  tasks:
+  - name: registry_ca | Copy registry certificate (https://bugzilla.redhat.com/show_bug.cgi?id=1553838)
+    shell: |
+      rm -f /etc/docker/certs.d/docker-registry.default.svc\:5000/node-client-ca.crt
+      ln -s /etc/origin/node/ca.crt /etc/docker/certs.d/docker-registry.default.svc\:5000/node-client-ca.crt
