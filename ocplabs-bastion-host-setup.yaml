@@ -45,9 +45,9 @@
     - psacct
     - python-virtualenv
     - gcc
-    - atomic-openshift-utils
+    - openshift-ansible
+    - atomic-openshift-clients
     - atomic-openshift-excluder
-    - atomic-openshift
     - rh-python35
     - cns-deploy
     - heketi-client

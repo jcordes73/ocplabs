@@ -2,36 +2,60 @@
   tasks:
   - name: setup_ocp_admin_roles | Login as system:admin
     shell: oc login -u system:admin -n default --config=/etc/origin/master/admin.kubeconfig
+  - name: fuse | Install Fuse Image Streams
+    shell: oc create -n openshift -f https://raw.githubusercontent.com/jboss-fuse/application-templates/master/fis-image-streams.json
+    ignore_errors: yes
+  - name: fuse | Install Fuse Templates
+    shell: oc create -f https://raw.githubusercontent.com/jboss-fuse/application-templates/2.1.x.redhat-7-x/quickstarts/{{item}} -n openshift
+    with_items:
+    - eap-camel-amq-template.json
+    - eap-camel-cdi-template.json
+    - eap-camel-cxf-jaxrs-template.json
+    - eap-camel-cxf-jaxws-template.json
+    - eap-camel-jpa-template.json
+    - karaf-camel-amq-template.json
+    - karaf-camel-log-template.json
+    - karaf-camel-rest-sql-template.json
+    - karaf-cxf-rest-template.json
+    - spring-boot-camel-amq-template.json
+    - spring-boot-camel-config-template.json
+    - spring-boot-camel-drools-template.json
+    - spring-boot-camel-infinispan-template.json
+    - spring-boot-camel-rest-sql-template.json
+    - spring-boot-camel-teiid-template.json
+    - spring-boot-camel-template.json
+    - spring-boot-camel-xa-template.json
+    - spring-boot-camel-xml-template.json
+    - spring-boot-cxf-jaxrs-template.json
+    - spring-boot-cxf-jaxws-template.json
+    ignore_errors: yes
   - name: fuse | Install Fuse Console Template
     shell: oc create -f https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.1.fuse-000081-redhat-4/fis-console-cluster-template.json -n openshift
     ignore_errors: yes
   - name: amq71 | Install AMQ 7.1 Image-Streams
     shell: |
-      oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/jboss-amq-7-broker-openshift-image/71-1.0.TP/amq-broker-7-image-streams.yaml
-      oc replace -n openshift --force -f https://raw.githubusercontent.com/jboss-container-images/jboss-amq-7-broker-openshift-image/71-1.0.TP/amq-broker-7-image-streams.yaml
+      oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/jboss-amq-7-broker-openshift-image/amq71-dev/amq-7-image-streams.yaml
+      oc replace -n openshift --force -f https://raw.githubusercontent.com/jboss-container-images/jboss-amq-7-broker-openshift-image/amq71-dev/amq-7-image-streams.yaml
       oc -n openshift import-image amq-broker-71-openshift:1.0
     ignore_errors: yes
   - name: amq71 | Install AMQ 7.1 Templates
     shell: |
-      oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/jboss-amq-7-broker-openshift-image/71-1.0.TP/templates/{{item}}
-      oc replace -n openshift -f https://raw.githubusercontent.com/jboss-container-images/jboss-amq-7-broker-openshift-image/71-1.0.TP/templates/{{item}}
+      oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/jboss-amq-7-broker-openshift-image/amq71-dev/templates/{{item}}
+      oc replace -n openshift -f https://raw.githubusercontent.com/jboss-container-images/jboss-amq-7-broker-openshift-image/amq71-dev/templates/{{item}}
     with_items:
     - amq-broker-71-basic.yaml
-    - amq-broker-71-ssl.yaml
-    - amq-broker-71-persistence.yaml
-    - amq-broker-71-persistence-ssl.yaml
-    - amq-broker-71-statefulset-clustered.yaml
+    - amq-broker-71-configmap.yaml
     ignore_errors: yes
   - name: 3scale | Install 3scale 2.2
     shell: oc create -n openshift -f https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/master/amp/amp.yml
     ignore_errors: yes
   - name: pam | Install Process Automation Manager Image Streams
-    shell: oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/rhpam-7-openshift-image/rhpam70-dev/rhpam70-image-streams.yaml
+    shell: oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/rhpam-7-openshift-image/rhpam70/rhpam70-image-streams.yaml
     ignore_errors: yes
   - name: pam | Install Process Automation Manager Templates
-    shell: oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/rhpam-7-openshift-image/rhpam70-dev/templates/{{item}}
+    shell: oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/rhpam-7-openshift-image/rhpam70/templates/{{item}}
     with_items:
-    - rhpam70-authoring-ha.yaml
+    - rhpam70-authoring.yaml
     - rhpam70-authoring-ha.yaml
     - rhpam70-kieserver-externaldb.yaml
     - rhpam70-kieserver-mysql.yaml
@@ -43,13 +67,23 @@
     - rhpam70-trial-ephemeral.yaml
     ignore_errors: yes
   - name: dm | Install Decision Manager  Image Streams
-    shell: oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/rhdm-7-openshift-image/rhdm70-dev/rhdm70-image-streams.yaml
+    shell: oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/rhdm-7-openshift-image/rhdm70/rhdm70-image-streams.yaml
     ignore_errors: yes
   - name: dm | Install Decision Manager Templates
-    shell: oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/rhdm-7-openshift-image/rhdm70-dev/templates/{{item}}
+    shell: oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/rhdm-7-openshift-image/rhdm70/templates/{{item}}
     with_items:
     - rhdm70-full.yaml
     - rhdm70-kieserver-basic-s2i.yaml
     - rhdm70-kieserver-https-s2i.yaml
     - rhdm70-kieserver.yaml 
+    ignore_errors: yes
+  - name: sso | Install SSO Templates
+    shell: oc replace -n openshift --force -f https://raw.githubusercontent.com/jboss-openshift/application-templates/ose-v1.4.9/sso/{{item}}
+    with_items:
+    - sso72-image-stream.json
+    - sso72-https.json
+    - sso72-mysql-persistent.json
+    - sso72-mysql.json
+    - sso72-postgresql-persistent.json
+    - sso72-postgresql.json
     ignore_errors: yes
