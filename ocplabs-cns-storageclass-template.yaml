@@ -1,11 +1,11 @@
-apiVersion: storage.k8s.io/v1beta1
+apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: glusterfs-storage
+  name: gluster-file
 provisioner: kubernetes.io/glusterfs
 parameters:
   resturl: "http://heketi-glusterfs.apps.ocplabs.com"
   restuser: "admin"
   volumetype: "replicate:3"
   clusterid: "{{heketi_clusterid.stdout_lines[0]}}"
-  volumeoptions: "client.ssl off, server.ssl off, features.cache-invalidation on, performance.nl-cache on"
+  volumeoptions: "client.ssl off, server.ssl off, performance.stat-prefetch off, performance.read-ahead off, performance.write-behind off, performance.readdir-ahead off, performance.io-cache off, performance.quick-read off, performance.open-behind off, performance.strict-o-direct on"

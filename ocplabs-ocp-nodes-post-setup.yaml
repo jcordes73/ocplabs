@@ -2,9 +2,9 @@
   vars:
     users:
       - name: admin
-        password: 'redhat2017!'
+        password: 'redhat2018!'
       - name: developer
-        password: 'redhat2017!'      
+        password: 'redhat2018!'      
   tasks:
   - name: create_htpasswd_users | Create Users via htpasswd
     htpasswd:
@@ -80,7 +80,13 @@
     shell: oc adm policy add-cluster-role-to-user cluster-reader system:serviceaccount:openshift-infra:heapster --insecure-skip-tls-verify=true --config=/etc/origin/master/admin.kubeconfig
 - hosts: masters:nodes
   tasks:
-  - name: registry_ca | Copy registry certificate (https://bugzilla.redhat.com/show_bug.cgi?id=1553838)
-    shell: |
-      rm -f /etc/docker/certs.d/docker-registry.default.svc\:5000/node-client-ca.crt
-      ln -s /etc/origin/node/ca.crt /etc/docker/certs.d/docker-registry.default.svc\:5000/node-client-ca.crt
+  - name: create_symlink_directory | Create directy for certificate symlink, workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1553838
+    file:
+      path: /etc/docker/certs.d/docker-registry.default.svc:5000
+      state: directory
+      recurse: yes
+  - name: create_symlink | Create certificate symlink, workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1553838
+    file:
+      src: /etc/origin/node/client-ca.crt
+      dest: /etc/docker/certs.d/docker-registry.default.svc:5000/node-client-ca.crt
+      state: link

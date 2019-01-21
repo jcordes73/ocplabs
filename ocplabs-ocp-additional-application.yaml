@@ -2,13 +2,12 @@
   tasks:
   - name: setup_ocp_admin_roles | Login as system:admin
     shell: oc login -u system:admin -n default --config=/etc/origin/master/admin.kubeconfig
-  - name: fuse | Install Fuse Image Streams
-    shell: oc create -n openshift -f https://raw.githubusercontent.com/jboss-fuse/application-templates/master/fis-image-streams.json
+  - name: fuse71 | Install Fuse 7.1 Image Streams
+    shell: curl https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.1.fuse-710017-redhat-00006/fis-image-streams.json | sed 's/registry\.access\.redhat\.com\//192.168.1.106:5000\//g' | oc replace --force -f - -n openshift
     ignore_errors: yes
-  - name: fuse | Install Fuse Templates
-    shell: oc create -f https://raw.githubusercontent.com/jboss-fuse/application-templates/2.1.x.redhat-7-x/quickstarts/{{item}} -n openshift
+  - name: fuse71 | Install Fuse 7.1 Templates
+    shell: curl https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.1.fuse-710017-redhat-00006/quickstarts/{{item}} | sed 's/registry\.access\.redhat\.com\//192.168.1.106:5000\//g' | oc replace --force -f - -n openshift
     with_items:
-    - eap-camel-amq-template.json
     - eap-camel-cdi-template.json
     - eap-camel-cxf-jaxrs-template.json
     - eap-camel-cxf-jaxws-template.json
@@ -29,56 +28,59 @@
     - spring-boot-cxf-jaxrs-template.json
     - spring-boot-cxf-jaxws-template.json
     ignore_errors: yes
-  - name: fuse | Install Fuse Console Template
-    shell: oc create -f https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.1.fuse-000081-redhat-4/fis-console-cluster-template.json -n openshift
+  - name: fuse71 | Install Fuse 7.1 Console Template
+    shell: curl https://raw.githubusercontent.com/jboss-fuse/application-templates/application-templates-2.1.fuse-710017-redhat-00006/fis-console-cluster-template.json | sed 's/registry\.access\.redhat\.com\//192.168.1.106:5000\//g' | oc replace --force -f - -n openshift
     ignore_errors: yes
-  - name: amq71 | Install AMQ 7.1 Image-Streams
+  - name: amq72 | Install AMQ 7.2 Image-Streams
     shell: |
-      oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/jboss-amq-7-broker-openshift-image/amq71-dev/amq-7-image-streams.yaml
-      oc replace -n openshift --force -f https://raw.githubusercontent.com/jboss-container-images/jboss-amq-7-broker-openshift-image/amq71-dev/amq-7-image-streams.yaml
-      oc -n openshift import-image amq-broker-71-openshift:1.0
+      curl https://raw.githubusercontent.com/jboss-container-images/jboss-amq-7-broker-openshift-image/72-1.0.GA/amq-broker-7-image-streams.yaml | sed 's/registry\.access\.redhat\.com\//192.168.1.106:5000\//g' | oc replace --force -f - -n openshift
+      curl https://raw.githubusercontent.com/jboss-container-images/jboss-amq-7-broker-openshift-image/72-1.0.GA/amq-broker-7-scaledown-controller-image-streams.yaml | sed 's/registry\.access\.redhat\.com\//192.168.1.106:5000\//g' | oc replace --force -f - -n openshift
     ignore_errors: yes
-  - name: amq71 | Install AMQ 7.1 Templates
-    shell: |
-      oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/jboss-amq-7-broker-openshift-image/amq71-dev/templates/{{item}}
-      oc replace -n openshift -f https://raw.githubusercontent.com/jboss-container-images/jboss-amq-7-broker-openshift-image/amq71-dev/templates/{{item}}
+  - name: amq72 | Install AMQ 7.2 Templates
+    shell: curl https://raw.githubusercontent.com/jboss-container-images/jboss-amq-7-broker-openshift-image/72-1.0.GA/templates/{{item}} |  sed 's/registry\.access\.redhat\.com\//192.168.1.106:5000\//g' | oc replace --force -f - -n openshift
     with_items:
-    - amq-broker-71-basic.yaml
-    - amq-broker-71-configmap.yaml
+    - amq-broker-72-basic.yaml
+    - amq-broker-72-ssl.yaml
+    - amq-broker-72-custom.yaml
+    - amq-broker-72-persistence.yaml
+    - amq-broker-72-persistence-ssl.yaml
+    - amq-broker-72-persistence-clustered.yaml
+    - amq-broker-72-persistence-clustered-ssl.yaml
     ignore_errors: yes
-  - name: 3scale | Install 3scale 2.2
-    shell: oc create -n openshift -f https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/master/amp/amp.yml
+  - name: 3scale23 | Install 3scale 2.3
+    shell: curl https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.3-release/amp/amp.yml | sed 's/registry\.access\.redhat\.com\//192.168.1.106:5000\//g' | oc replace --force -f - -n openshift
     ignore_errors: yes
-  - name: pam | Install Process Automation Manager Image Streams
-    shell: oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/rhpam-7-openshift-image/rhpam70/rhpam70-image-streams.yaml
+  - name: pam71 | Install Process Automation Manager 7.1 Image Streams
+    shell: curl https://raw.githubusercontent.com/jboss-container-images/rhpam-7-openshift-image/7.1.x/rhpam71-image-streams.yaml | sed 's/registry\.redhat\.io\//192.168.1.106:5000\//g'| oc replace --force -f - -n openshift
     ignore_errors: yes
-  - name: pam | Install Process Automation Manager Templates
-    shell: oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/rhpam-7-openshift-image/rhpam70/templates/{{item}}
+  - name: pam71 | Install Process Automation Manager 7.1 Templates
+    shell: curl https://raw.githubusercontent.com/jboss-container-images/rhpam-7-openshift-image/7.1.x/templates/{{item}} | sed 's/registry\.redhat\.io\//192.168.1.106:5000\//g' | oc replace --force -f - -n openshift
     with_items:
-    - rhpam70-authoring.yaml
-    - rhpam70-authoring-ha.yaml
-    - rhpam70-kieserver-externaldb.yaml
-    - rhpam70-kieserver-mysql.yaml
-    - rhpam70-kieserver-postgresql.yaml
-    - rhpam70-prod-immutable-kieserver.yaml
-    - rhpam70-prod-immutable-monitor.yaml
-    - rhpam70-prod.yaml
-    - rhpam70-sit.yaml
-    - rhpam70-trial-ephemeral.yaml
+    - rhpam71-authoring.yaml
+    - rhpam71-authoring-ha.yaml
+    - rhpam71-kieserver-externaldb.yaml
+    - rhpam71-kieserver-mysql.yaml
+    - rhpam71-kieserver-postgresql.yaml
+    - rhpam71-prod-immutable-kieserver.yaml
+    - rhpam71-prod-immutable-monitor.yaml
+    - rhpam71-prod.yaml
+    - rhpam71-sit.yaml
+    - rhpam71-trial-ephemeral.yaml
     ignore_errors: yes
-  - name: dm | Install Decision Manager  Image Streams
-    shell: oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/rhdm-7-openshift-image/rhdm70/rhdm70-image-streams.yaml
+  - name: dm71 | Install Decision Manager 7.1 Image Streams
+    shell: curl https://raw.githubusercontent.com/jboss-container-images/rhdm-7-openshift-image/7.1.x/rhdm71-image-streams.yaml | sed 's/registry\.\.redhat\.io\//192.168.1.106:5000\//g' | oc replace --force -f - -n openshift
     ignore_errors: yes
-  - name: dm | Install Decision Manager Templates
-    shell: oc create -n openshift -f https://raw.githubusercontent.com/jboss-container-images/rhdm-7-openshift-image/rhdm70/templates/{{item}}
+  - name: dm71 | Install Decision Manager 7.1 Templates
+    shell: curl https://raw.githubusercontent.com/jboss-container-images/rhdm-7-openshift-image/7.1.x/templates/{{item}} | sed 's/registry\.redhat\.io\//192.168.1.106:5000\//g' | oc replace --force -f - -n openshift
     with_items:
-    - rhdm70-full.yaml
-    - rhdm70-kieserver-basic-s2i.yaml
-    - rhdm70-kieserver-https-s2i.yaml
-    - rhdm70-kieserver.yaml 
+    - rhdm71-authoring.yaml
+    - rhdm71-authoring-ha.yaml
+    - rhdm71-kieserver.yaml
+    - rhdm71-prod-immutable-kieserver.yaml
+    - rhdm71-trial-ephemeral.yaml
     ignore_errors: yes
-  - name: sso | Install SSO Templates
-    shell: oc replace -n openshift --force -f https://raw.githubusercontent.com/jboss-openshift/application-templates/ose-v1.4.9/sso/{{item}}
+  - name: sso72 | Install SSO 7.2 Templates
+    shell: curl https://raw.githubusercontent.com/jboss-openshift/application-templates/ose-v1.4.9/sso/{{item}} | sed 's/registry\.access\.redhat\.com\//192.168.1.106:5000\//g' | oc replace --force -f - -n openshift
     with_items:
     - sso72-image-stream.json
     - sso72-https.json
@@ -86,4 +88,9 @@
     - sso72-mysql.json
     - sso72-postgresql-persistent.json
     - sso72-postgresql.json
+    ignore_errors: yes
+  - name: import_images | Import all image streams
+    shell: oc get is -n openshift --no-headers=true | awk '{print $1}' | xargs -I{} oc import-image {} -n openshift --insecure=true --all=true
+    retries: 3
+    delay: 5
     ignore_errors: yes

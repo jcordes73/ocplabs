@@ -13,16 +13,12 @@
     when: check_ocp_playbooks.stat.exists == false
   - name: setup_bastion_host | Clean yum
     shell: yum clean all
+    when: check_ocp_playbooks.stat.exists == false
   - name: setup_bastion_host | Disable all repos
     shell: subscription-manager repos --disable="*"
     when: check_ocp_playbooks.stat.exists == false
   - name: setup_bastion_host | Enable OCP and RHSCL repos (needed for Fedora)
-    shell: subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-server-ose-3.10-rpms" --enable="rhel-7-fast-datapath-rpms" --enable="rhel-7-server-ansible-2.4-rpms" --enable="rhel-server-rhscl-7-rpms" --enable="rh-gluster-3-for-rhel-7-server-rpms"
-    when: check_ocp_playbooks.stat.exists == false
-  - name: setup_bastion_host | Install EPEL repos
-    yum:
-      name: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-      state: present
+    shell: subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-server-ose-3.11-rpms" --enable="rhel-7-fast-datapath-rpms" --enable="rhel-7-server-ansible-2.6-rpms" --enable="rhel-server-rhscl-7-rpms" --enable="rh-gluster-3-for-rhel-7-server-rpms"
     when: check_ocp_playbooks.stat.exists == false
   - name: setup_bastion_host | Install deltarpm
     yum:
@@ -57,8 +53,6 @@
       atomic-openshift-excluder unexclude
       yum install atomic-openshift-clients
       atomic-openshift-excluder exclude
-  - name: setup_bastion_host | Disable GlusterFS repo
-    shell: subscription-manager repos --disable="rh-gluster-3-for-rhel-7-server-rpms"
     when: check_ocp_playbooks.stat.exists == false
   - name: setup_ssh | Generate SSH keys
     shell: ssh-keygen -b 2048 -t rsa -f /root/.ssh/id_rsa -q -N ""

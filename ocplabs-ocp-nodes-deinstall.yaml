@@ -40,3 +40,7 @@
     file:
       path: /etc/origin
       state: absent
+  - name: clean_dockers_certs | Remove additional docker certs
+    file:
+      path: /etc/docker/certs.d/docker-registry.default.svc:5000
+      state: absent

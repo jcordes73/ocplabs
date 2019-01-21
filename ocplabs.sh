@@ -4,7 +4,7 @@ trap interrupt 1 2 3 6 9 15
 
 function interrupt()
 {
-  log error "OpenShift Enterprise v3.10 installation aborted"
+  log error "OpenShift Enterprise v3.11 installation aborted"
   exit
 }
 
@@ -36,26 +36,7 @@ function show_input_info()
 }
 
 function show_usage() {
-  echo "Usage: ocplabs.sh <install|deinstall|cns-install|cns-deinstall|offline-storage> <parameters>"
-  echo "  Optional parameters"
-  echo "    --proxy=<host>:<port>"
-  echo "    --proxy-user=<user>:<password>"
-}
-
-function check_variables() {
-  if [ ! "${PROXY_HOST}x" = "x" ] ; then
-    if [ ! "${PROXY_USER}x" = "x" ] ; then
-      git config --global http.proxy http://${PROXY_USER}:${PROXY_PASS}@${PROXY_HOST}:${PROXY_PORT}
-      git config --global https.proxy https://${PROXY_USER}:${PROXY_PASS}@${PROXY_HOST}:${PROXY_PORT}
-    else
-      git config --global http.proxy http://${PROXY_HOST}:${PROXY_PORT}
-      git config --global https.proxy https://${PROXY_HOST}:${PROXY_PORT}
-    fi
-  fi
-
-  if [ ! "${ATOMIC_VERSION}" = "latest" ] ; then
-    ATOMIC_VERSION="v${ATOMIC_VERSION}"
-  fi
+  echo "Usage: ocplabs.sh <install|deinstall|cns-install|cns-deinstall|app-install> <parameters>"
 }
 
 function bastion_host_preparation() {
@@ -108,14 +89,7 @@ function ocp_nodes_prerequisites_check() {
 
 
 OPTS="$*"
-HOSTNAME="`hostname`"
-DOMAIN="`echo $HOSTNAME | cut -d'.' -f2-`"
-PROXY_HOST=""
-PROXY_PORT=""
-PROXY_USER=""
-PROXY_PASS=""
 MODE=unknown
-OFFLINE=false
 
 for opt in $OPTS ; do
   VALUE="`echo $opt | cut -d"=" -f2`"
@@ -133,16 +107,9 @@ for opt in $OPTS ; do
     cns-deinstall)
       MODE=cns-deinstall
     ;;
-    offline-storage)
-      MODE=offline-storage
+    app-install)
+      MODE=app-install
     ;;
-    --proxy=*)
-      PROXY_HOST="`echo $VALUE | cut -d':' -f1`"
-      PROXY_PORT="`echo $VALUE | cut -d':' -f2`"
-    ;;
-    --proxy-user=*)
-      PROXY_USER="`echo $VALUE | cut -d':' -f1`"
-      PROXY_PASS="`echo $VALUE | cut -d':' -f2`"
   esac
 done
 
@@ -152,21 +119,13 @@ if [ ! -f "ocplabs-ocp-inventory.cfg" ] ; then
 fi
 
 case "$MODE" in
-  offline-storage)
-  check_variables
-  bastion_host_preparation
-
-  ansible-playbook -vvv -i ocplabs-ocp-inventory.cfg ocplabs-bastion-host-prefetch-docker-images.yaml -e "@ocplabs-ansible-variables.json" -e "@ocplabs-container-catalog-redhat-access.yaml">> ocplabs.log 2>&1
- 
-  ;;
   install)
 
-  check_variables
   bastion_host_preparation
   ocp_nodes_preparation
   ocp_nodes_prerequisites_check
 
-  log info "Starting OpenShift Container Platform v3.10 installation."
+  log info "Starting OpenShift Container Platform v3.11 installation."
 
   ansible-playbook -vvv -i ocplabs-ocp-inventory.cfg /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml >> ocplabs.log 2>&1
 
@@ -198,13 +157,11 @@ case "$MODE" in
 
   log info "Post Installation finished."
   
-  log info "Finished OpenShift Container Platform v3.10 installation."
+  log info "Finished OpenShift Container Platform v3.11 installation."
 ;;
 cns-install)
 
-  check_variables
-
-  log info "Starting OpenShift Container Platform v3.10 CNS installation."
+  log info "Starting OpenShift Container Platform v3.11 CNS installation."
 
   log info "Deployment started."
 
@@ -217,18 +174,37 @@ cns-install)
     exit
   fi
 
-  log info "Finished OpenShift Container Platform v3.10 CNS installation."
+  log info "Finished OpenShift Container Platform v3.11 CNS installation."
+;;
+app-install)
+
+  check_variables
+
+  log info "Starting OpenShift Container Platform v3.11 Additional Application installation."
+
+  log info "Deployment started."
+
+  ansible-playbook -vvv -i ocplabs-cns-inventory.cfg ocplabs-ocp-additional-application.yaml >> ocplabs.log 2>&1
+
+  ERROR_CODE=$?
+
+  if [ $ERROR_CODE -ne 0 ]; then
+    log error "Application Installation failed. Aborting."
+    exit
+  fi
+
+  log info "Finished OpenShift Container Platform v3.11 Additional Application installation."
 ;;
 deinstall)
-  log info "Starting OpenShift Container Platform v3.10 deinstallation."  
+  log info "Starting OpenShift Container Platform v3.11 deinstallation."  
   ansible-playbook -vvv -i ocplabs-ocp-inventory.cfg /usr/share/ansible/openshift-ansible/playbooks/adhoc/uninstall.yml >> ocplabs.log 2>&1
   ansible-playbook -vvv -i ocplabs-ocp-inventory.cfg ocplabs-ocp-nodes-deinstall.yaml >> ocplabs.log 2>&1 
-  log info "Finished OpenShift Container Platform v3.10 deinstallation."
+  log info "Finished OpenShift Container Platform v3.11 deinstallation."
 ;;
 cns-deinstall)
-  log info "Starting OpenShift Container Platform v3.10 CNS deinstallation."
+  log info "Starting OpenShift Container Platform v3.11 CNS deinstallation."
   ansible-playbook -vvv -i ocplabs-cns-inventory.cfg ocplabs-cns-nodes-deinstall.yaml >> ocplabs.log 2>&1
-  log info "Finished OpenShift Container Platform v3.10 CNS deinstallation."
+  log info "Finished OpenShift Container Platform v3.11 CNS deinstallation."
 ;;
 *)
   show_usage

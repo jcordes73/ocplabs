@@ -1,22 +1,20 @@
 - hosts: localhost
   tasks:
   - name: remove_gluster_containers | Login
-    shell: oc login -u admin -p 'redhat2017!' https://master.ocplabs.com:8443 --insecure-skip-tls-verify=true
+    shell: oc login -u admin -p 'redhat2018!' https://master.ocplabs.com:8443 --insecure-skip-tls-verify=true
+    ignore_errors: yes
   - name: remove_gluster_containers | Delete glusterfs projects
     shell: oc delete project glusterfs
     ignore_errors: yes
   - name: remove_gluster_default_storageclass | Delete GlusterFS storage-class
-    shell: oc delete storageclass glusterfs-storage
+    shell: oc delete storageclass gluster-file
     ignore_errors: yes
   - name: remove_gluster_containers | Remove node labels
     shell: oc label node {{ hostvars[item]['inventory_hostname'] }} storagenode-
     with_items: "{{groups.glusterfs}}"
+    ignore_errors: yes
 - hosts: glusterfs
   tasks:
-  - name:  remove_gluster | Delete pre-existing GlusterFS config
-    file:
-      path: /var/lib/glusterd
-      state: absent
   - name: remove_gluster | Get GlusterFS storage devices state
     command: "pvdisplay -C --noheadings -o pv_name,vg_name {% for device in glusterfs_devices %}{{ device }} {% endfor %}"
     register: devices_info
@@ -33,6 +31,18 @@
     retries: 30
     when:
     - devices_info.stdout_lines | count > 0
+  - name:  remove_heketi | Delete pre-existing Heketi config
+    file:
+      path: /var/lib/heketi
+      state: absent
+  - name:  remove_gluster | Delete pre-existing GlusterFS config
+    file:
+      path: /var/lib/glusterd
+      state: absent
+  - name:  remove_gluster | Delete pre-existing GlusterFS logs
+    file:
+      path: /var/log/glusterfs
+      state: absent
   - name: clean_device | Wipe FS completely
     shell: wipefs -a -f {{item}}
     with_items: "{{glusterfs_devices}}"
