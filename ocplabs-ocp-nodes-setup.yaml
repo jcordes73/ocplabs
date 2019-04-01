@@ -3,16 +3,6 @@
   vars: 
     net_interfaces: [ 'enp1s0' ]
   tasks:
-  - name: setup_ssh | Set password
-    set_fact:
-      ansible_ssh_pass: "{{ansible_ssh_pass}}"
-  - name: setup_ssh | Create .ssh directory
-    file:
-      path: /root/.ssh
-      state: directory
-  - name: setup_ssh | Copy SSH keys
-    authorized_key: user=root key={{lookup('file', item)}} manage_dir=no
-    with_fileglob: ~/.ssh/id_rsa.pub
   - name: configure_network_if | Configure Network interfaces
     template: owner=root group=root mode=644 
               src=ocplabs-ifcfg-interface-template 
@@ -75,6 +65,11 @@
   - name: configure_hosts | Configure /etc/hosts
     lineinfile: dest=/etc/hosts line="{{ hostvars[item]['ansible_host'] }} {{ hostvars[item]['inventory_hostname'] }}"
     with_items: "{{groups.all}}"
+  - name: configure_hosts | Configure /etc/hosts for Docker registries (point to Nexus)
+    lineinfile: dest=/etc/hosts line="192.168.1.106 {{item}}"
+    with_items:
+    - registry.access.redhat.com
+    - registry.redhat.io
   - name: start_lvm_socket | Start LVM Socket
     systemd:
       name: lvm2-lvmetad.socket
@@ -139,13 +134,13 @@
   - name: configure_docker | Configure Docker
     lineinfile: dest=/etc/sysconfig/docker
                 regexp="^OPTIONS=.*"
-                line="OPTIONS='--signature-verification=false --selinux-enabled  --log-driver=journald --insecure-registry 172.30.0.0/16 --insecure-registry 192.168.1.106:5000'"
+                line="OPTIONS='--signature-verification=false --selinux-enabled  --log-driver=journald --insecure-registry 172.30.0.0/16 --insecure-registry 192.168.1.106'"
                 state=present
     when: docker_vg.changed
   - name: configure_docker | Configure Docker
     lineinfile: dest=/etc/sysconfig/docker
                 regexp="^ADD_REGISTRY=.*"
-                line="ADD_REGISTRY='--add-registry 192.168.1.106:5000'"
+                line="ADD_REGISTRY='--add-registry 192.168.1.106'"
                 state=present
     when: docker_vg.changed
   - name: configure_docker | Configure Docker registries

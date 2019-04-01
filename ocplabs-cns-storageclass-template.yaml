@@ -8,4 +8,6 @@ parameters:
   restuser: "admin"
   volumetype: "replicate:3"
   clusterid: "{{heketi_clusterid.stdout_lines[0]}}"
-  volumeoptions: "client.ssl off, server.ssl off, performance.stat-prefetch off, performance.read-ahead off, performance.write-behind off, performance.readdir-ahead off, performance.io-cache off, performance.quick-read off, performance.open-behind off, performance.strict-o-direct on"
+  volumenameprefix: gf
+  volumeoptions: "client.ssl off, server.ssl off, user.heketi.arbiter true"
+reclaimPolicy: Delete

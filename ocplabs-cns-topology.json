@@ -6,6 +6,28 @@
                     "node": {
                         "hostnames": {
                             "manage": [
+                                "master.ocplabs.com"
+                            ],
+                            "storage": [
+                                "192.168.1.102"
+                            ]
+                        },
+                        "zone": 1
+                    },
+                    "devices": [
+                        {
+                            "name": "/dev/sdb",
+                            "tags": {
+                              "arbiter":"required"
+                            },
+                            "destroydata": true
+                        }
+                    ]
+                },
+                {
+                    "node": {
+                        "hostnames": {
+                            "manage": [
                                 "node01.ocplabs.com"
                             ],
                             "storage": [
@@ -15,7 +37,13 @@
                         "zone": 1
                     },
                     "devices": [
-                        "/dev/sdb"
+                        {
+                            "name": "/dev/sdb",
+                            "tags": {
+                              "arbiter":"required"
+                            },
+                            "destroydata": true
+                        }
                     ]
                 },
                 {

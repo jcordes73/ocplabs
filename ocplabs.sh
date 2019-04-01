@@ -165,6 +165,7 @@ cns-install)
 
   log info "Deployment started."
 
+  ansible-playbook -vvv -i ocplabs-cns-inventory.cfg ocplabs-cns-nodes-deinstall.yaml >> ocplabs.log 2>&1
   ansible-playbook -vvv -i ocplabs-cns-inventory.cfg ocplabs-cns-nodes-setup.yaml >> ocplabs.log 2>&1
 
   ERROR_CODE=$?
@@ -177,8 +178,6 @@ cns-install)
   log info "Finished OpenShift Container Platform v3.11 CNS installation."
 ;;
 app-install)
-
-  check_variables
 
   log info "Starting OpenShift Container Platform v3.11 Additional Application installation."
 

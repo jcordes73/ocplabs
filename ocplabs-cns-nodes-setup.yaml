@@ -19,10 +19,10 @@
     shell: docker images 'rhgs3/{{item}}' | grep -e '.*/rhgs3/{{item.split(":")[0]}}.*{{item.split(":")[1]}}.*' | awk '{}END{ if (!NR) print "{{item}}"}'
     register: docker_images_missing
     with_items:
-    - rhgs-server-rhel7:v3.11.0
-    - rhgs-volmanager-rhel7:v3.11.0
-    - rhgs-gluster-block-prov-rhel7:v3.11.0
-    - rhgs-s3-server-rhel7:v3.11.0
+    - rhgs-server-rhel7:v3.11.1
+    - rhgs-volmanager-rhel7:v3.11.1
+    - rhgs-gluster-block-prov-rhel7:v3.11.1
+    - rhgs-s3-server-rhel7:v3.11.1
   - name: docker_pull_nodes | Pull Docker Images for Gluster
     shell: docker pull rhgs3/{{item}}
     with_items: "{{ docker_images_missing.results|map(attribute='stdout_lines')|list }}"
@@ -116,6 +116,8 @@
   tasks:
   - name: setup_gluster_containers | Login
     shell: oc login -u admin -p 'redhat2018!' https://master.ocplabs.com:8443 --insecure-skip-tls-verify=true
+  - name: setup_gluster_container | Mark master as compute node
+    shell: oc label node master.ocplabs.com node-role.kubernetes.io/compute=true --overwrite
   - name: setup_gluster_containers | Create glusterfs projects
     shell: oc new-project glusterfs
     ignore_errors: yes
